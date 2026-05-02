@@ -89,6 +89,8 @@ module master(input clk, input resetn, input start, input cpol, input cpha, inpu
           busy<=1;
           shift_data<=datain;
           count<=0;
+          if(cpha==0)
+            mosi<=datain[7];
         end
         transfer: begin
           busy<=1;
@@ -103,9 +105,9 @@ module master(input clk, input resetn, input start, input cpol, input cpha, inpu
               end
             end
             2'b01: begin
-              if(falling_edge)
+              if(rising_edge)
                mosi<=shift_data[7];
-              if(rising_edge) begin
+              if(falling_edge) begin
                shift_data<={shift_data[6:0],miso};
                count<=count+1;
              end
@@ -119,9 +121,9 @@ module master(input clk, input resetn, input start, input cpol, input cpha, inpu
              end
            end
             2'b11: begin
-              if(rising_edge)
+              if(falling_edge)
                mosi<=shift_data[7];
-              if(falling_edge) begin
+              if(rising_edge) begin
                shift_data<={shift_data[6:0],miso};
                count<=count+1;
              end
@@ -168,7 +170,7 @@ module slave(input clk, input resetn, input [7:0]datain, input cpol, input cpha,
       dataout<=0;
       miso<=0;
       count<=0;
-      shift_data<=0;
+      //shift_data<=0;
     end
     else begin
       busy<=0;
@@ -196,9 +198,9 @@ module slave(input clk, input resetn, input [7:0]datain, input cpol, input cpha,
             end
           end
           2'b01: begin
-            if(falling_edge)
+            if(rising_edge)
               miso<=shift_data[7];
-            if(rising_edge) begin
+            if(falling_edge) begin
               shift_data<={shift_data[6:0],mosi};
               if(count==7) begin
                 dataout<={shift_data[6:0],mosi};
@@ -226,9 +228,9 @@ module slave(input clk, input resetn, input [7:0]datain, input cpol, input cpha,
             end
           end
           2'b11: begin
-            if(rising_edge)
+            if(falling_edge)
               miso<=shift_data[7];
-            if(falling_edge) begin
+            if(rising_edge) begin
               shift_data<={shift_data[6:0],mosi};
               if(count==7) begin
                 dataout<={shift_data[6:0],mosi};
